@@ -1,3 +1,4 @@
+// api/TelegramSender.java
 package api;
 
 import java.net.URI;
@@ -7,12 +8,12 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 
-public class TelegramSender {
+public class TelegramSender implements MessageSender {
     private static final String BOT_TOKEN = "7634287599:AAHa-NGqzREwBdQMlVweRJDofvEjCUuK9DY";
     private static final String CHAT_ID = "292510604";
 
-    public static void sendToTelegram(String message) throws Exception {
-        // Правильное кодирование сообщения для URL
+    @Override
+    public void send(String message) throws Exception {
         String encodedMessage = URLEncoder.encode(message, StandardCharsets.UTF_8.toString())
                 .replace("+", "%20")
                 .replace("%2F", "/")

@@ -11,9 +11,12 @@ import model.CalculationResult;
 import model.UtilityInput;
 import service.UtilityCalculatorService;
 import exception.InvalidInputException;
+import api.MessageSender;
+
 
 public class UtilityCalculatorView {
     private final UtilityCalculatorService calculatorService;
+    private final MessageSender messageSender;
     private JTextArea resultArea;
     private JTextField waterPrevField;
     private JTextField electricityPrevField;
@@ -22,8 +25,9 @@ public class UtilityCalculatorView {
     private JTextField electricityCurrentField;
     private JTextField gasCurrentField;
 
-    public UtilityCalculatorView(UtilityCalculatorService calculatorService) {
+    public UtilityCalculatorView(UtilityCalculatorService calculatorService, MessageSender messageSender) {
         this.calculatorService = calculatorService;
+        this.messageSender = messageSender;
         initializeUI();
     }
 
@@ -41,14 +45,33 @@ public class UtilityCalculatorView {
         JButton calculateButton = new JButton("Рассчитать");
         calculateButton.addActionListener(e -> onCalculateButtonClick());
 
+        JButton sendTelegramButton = new JButton("Отправить в Telegram");
+        sendTelegramButton.addActionListener(e -> sendToTelegram());
+
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(calculateButton);
+        buttonPanel.add(sendTelegramButton);
 
         frame.add(inputPanel, BorderLayout.NORTH);
         frame.add(new JScrollPane(resultArea), BorderLayout.CENTER);
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
         frame.setVisible(true);
+    }
+
+    private void sendToTelegram() {
+        try {
+            String message = resultArea.getText();
+            if (message == null || message.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Нет данных для отправки", "Ошибка", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            messageSender.send(message);
+            JOptionPane.showMessageDialog(null, "Результаты отправлены в Telegram!", "Успех", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Ошибка отправки: " + ex.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private JPanel createInputPanel() {
@@ -112,7 +135,7 @@ public class UtilityCalculatorView {
 
         String formattedResult = String.format(
                 "Коммунальные услуги за %s\n" +
-                        "-------------------------------\n" +
+                        "         \n" +
                         "Вода: %.0f куб.м (%.0f → %.0f) * %s руб = %s руб\n" +
                         "Электричество: %.0f кВт*ч (%.0f → %.0f) * %s руб = %s руб\n" +
                         "Газ: %.0f куб.м (%.0f → %.0f) * %s руб = %s руб\n" +
