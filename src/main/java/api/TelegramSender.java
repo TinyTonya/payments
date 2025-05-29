@@ -1,6 +1,6 @@
-// api/TelegramSender.java
 package api;
 
+import util.ConfigLoader;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -9,8 +9,17 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 
 public class TelegramSender implements MessageSender {
-    private static final String BOT_TOKEN = "7634287599:AAHa-NGqzREwBdQMlVweRJDofvEjCUuK9DY";
-    private static final String CHAT_ID = "292510604";
+    private final String botToken;
+    private final String chatId;
+
+    public TelegramSender() {
+        this.botToken = ConfigLoader.getTelegramBotToken();
+        this.chatId = ConfigLoader.getTelegramChatId();
+
+        if (botToken == null || botToken.isEmpty() || chatId == null || chatId.isEmpty()) {
+            throw new IllegalStateException("Telegram credentials не настроены в config.properties");
+        }
+    }
 
     @Override
     public void send(String message) throws Exception {
@@ -19,9 +28,12 @@ public class TelegramSender implements MessageSender {
                 .replace("%2F", "/")
                 .replace("%3A", ":");
 
-        String url = "https://api.telegram.org/bot" + BOT_TOKEN +
-                "/sendMessage?chat_id=" + CHAT_ID +
-                "&text=" + encodedMessage;
+        String url = String.format(
+                "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s",
+                botToken,
+                chatId,
+                encodedMessage
+        );
 
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
