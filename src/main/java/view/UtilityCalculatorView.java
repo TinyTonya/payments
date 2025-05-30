@@ -12,11 +12,13 @@ import model.UtilityInput;
 import service.UtilityCalculatorService;
 import exception.InvalidInputException;
 import api.MessageSender;
+import util.IntegerInputVerifier;
 
 
 public class UtilityCalculatorView {
     private final UtilityCalculatorService calculatorService;
     private final MessageSender messageSender;
+    private final IntegerInputVerifier inputVerifier = new IntegerInputVerifier();
     private JTextArea resultArea;
     private JTextField waterPrevField;
     private JTextField electricityPrevField;
@@ -79,11 +81,17 @@ public class UtilityCalculatorView {
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         waterPrevField = new JTextField();
+        waterPrevField.setInputVerifier(inputVerifier); // Добавлено
         electricityPrevField = new JTextField();
+        electricityPrevField.setInputVerifier(inputVerifier); // Добавлено
         gasPrevField = new JTextField();
+        gasPrevField.setInputVerifier(inputVerifier); // Добавлено
         waterCurrentField = new JTextField();
+        waterCurrentField.setInputVerifier(inputVerifier); // Добавлено
         electricityCurrentField = new JTextField();
+        electricityCurrentField.setInputVerifier(inputVerifier); // Добавлено
         gasCurrentField = new JTextField();
+        gasCurrentField.setInputVerifier(inputVerifier);
 
         panel.add(new JLabel("Вода (пред. месяц):"));
         panel.add(waterPrevField);
@@ -112,12 +120,12 @@ public class UtilityCalculatorView {
     }
 
     private UtilityInput readInputFields() throws NumberFormatException {
-        double waterPrev = Double.parseDouble(waterPrevField.getText());
-        double electricityPrev = Double.parseDouble(electricityPrevField.getText());
-        double gasPrev = Double.parseDouble(gasPrevField.getText());
-        double waterCurrent = Double.parseDouble(waterCurrentField.getText());
-        double electricityCurrent = Double.parseDouble(electricityCurrentField.getText());
-        double gasCurrent = Double.parseDouble(gasCurrentField.getText());
+        int waterPrev = Integer.parseInt(waterPrevField.getText());
+        int electricityPrev = Integer.parseInt(electricityPrevField.getText());
+        int gasPrev = Integer.parseInt(gasPrevField.getText());
+        int waterCurrent = Integer.parseInt(waterCurrentField.getText());
+        int electricityCurrent = Integer.parseInt(electricityCurrentField.getText());
+        int gasCurrent = Integer.parseInt(gasCurrentField.getText());
 
         return new UtilityInput(
                 waterPrev, electricityPrev, gasPrev,
