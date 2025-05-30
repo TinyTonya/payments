@@ -7,6 +7,8 @@ public final class UtilityInput {
     private final double waterCurrent;
     private final double electricityCurrent;
     private final double gasCurrent;
+    private final boolean hasInternet; // Добавлено
+    private final boolean hasTSN;
 
     public UtilityInput(
             double waterPrev,
@@ -14,7 +16,9 @@ public final class UtilityInput {
             double gasPrev,
             double waterCurrent,
             double electricityCurrent,
-            double gasCurrent
+            double gasCurrent,
+            boolean hasInternet, // Добавлено
+            boolean hasTSN
     ) {
         this.waterPrev = waterPrev;
         this.electricityPrev = electricityPrev;
@@ -22,6 +26,8 @@ public final class UtilityInput {
         this.waterCurrent = waterCurrent;
         this.electricityCurrent = electricityCurrent;
         this.gasCurrent = gasCurrent;
+        this.hasInternet = hasInternet; // Добавлено
+        this.hasTSN = hasTSN;
     }
 
     // Геттеры
@@ -47,5 +53,12 @@ public final class UtilityInput {
 
     public double gasCurrent() {
         return gasCurrent;
+    }
+    public boolean hasInternet() {
+        return hasInternet;
+    }
+    // Добавлено
+    public boolean hasTSN() {
+        return hasTSN;
     }
 }

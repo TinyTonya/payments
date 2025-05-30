@@ -8,6 +8,8 @@ public class UtilityCalculatorService {
     private static final double WATER_PRICE = 82.0;
     private static final double ELECTRICITY_PRICE = 4.57;
     private static final double GAS_PRICE = 7.14;
+    private static final int INTERNET_PRICE = 700;    // Добавлено
+    private static final int TSN_PRICE = 1230;
 
     public CalculationResult calculate(UtilityInput input) throws InvalidInputException {
         validateInput(input);
@@ -21,9 +23,19 @@ public class UtilityCalculatorService {
         double gasCost = gasConsumed * GAS_PRICE;
         double totalCost = waterCost + electricityCost + gasCost;
 
+        // Добавлено: Учет Интернета и ТСН
+        if (input.hasInternet()) {
+            totalCost += INTERNET_PRICE;
+        }
+        if (input.hasTSN()) {
+            totalCost += TSN_PRICE;
+        }
+
         return new CalculationResult(
                 waterConsumed, electricityConsumed, gasConsumed,
-                waterCost, electricityCost, gasCost, totalCost
+                waterCost, electricityCost, gasCost,
+                totalCost,
+                input.hasInternet(), input.hasTSN() // Добавлено
         );
     }
 
