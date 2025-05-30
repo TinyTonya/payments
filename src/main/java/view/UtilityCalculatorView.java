@@ -36,7 +36,7 @@ public class UtilityCalculatorView {
     private void initializeUI() {
         JFrame frame = new JFrame("Калькулятор коммунальных услуг");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(500, 400);
+        frame.setSize(600, 500);
         frame.setLayout(new BorderLayout());
 
         JPanel inputPanel = createInputPanel();
@@ -76,8 +76,11 @@ public class UtilityCalculatorView {
         }
     }
 
+    private JCheckBox internetCheckBox;
+    private JCheckBox tsnCheckBox;
+
     private JPanel createInputPanel() {
-        JPanel panel = new JPanel(new GridLayout(6, 2, 5, 5));
+        JPanel panel = new JPanel(new GridLayout(8, 2, 5, 5));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         waterPrevField = new JTextField();
@@ -106,6 +109,18 @@ public class UtilityCalculatorView {
         panel.add(new JLabel("Газ (тек. месяц):"));
         panel.add(gasCurrentField);
 
+        // Добавлено: Чекбоксы для Интернета и ТСН
+        internetCheckBox = new JCheckBox("\uD83C\uDF10 Интернет (700 руб/мес)");
+        internetCheckBox.setSelected(true);  // Включено по умолчанию
+
+        tsnCheckBox = new JCheckBox("\uD83C\uDFE2 ТСН (1230 руб/мес)");
+        tsnCheckBox.setSelected(true);
+
+        panel.add(new JLabel("Доп. услуги:"));
+        panel.add(new JLabel("")); // Пустая ячейка для выравнивания
+        panel.add(internetCheckBox);
+        panel.add(tsnCheckBox);
+
         return panel;
     }
 
@@ -129,7 +144,9 @@ public class UtilityCalculatorView {
 
         return new UtilityInput(
                 waterPrev, electricityPrev, gasPrev,
-                waterCurrent, electricityCurrent, gasCurrent
+                waterCurrent, electricityCurrent, gasCurrent,
+                internetCheckBox.isSelected(), // Добавлено
+                tsnCheckBox.isSelected()
         );
     }
 
@@ -141,24 +158,48 @@ public class UtilityCalculatorView {
         numberFormat.setMinimumFractionDigits(2);
         numberFormat.setMaximumFractionDigits(2);
 
-        String formattedResult = String.format(
-                "Коммунальные услуги за %s\n" +
-                        "         \n" +
-                        "Вода: %.0f куб.м (%.0f → %.0f) * %s руб = %s руб\n" +
-                        "Электричество: %.0f кВт*ч (%.0f → %.0f) * %s руб = %s руб\n" +
-                        "Газ: %.0f куб.м (%.0f → %.0f) * %s руб = %s руб\n" +
-                        "-------------------------------\n" +
-                        "Итого: %s руб",
+        // Emoji для услуг
+        String waterEmoji = "\uD83D\uDCA7";       // Капля
+        String electricityEmoji = "\u26A1";       // Молния
+        String gasEmoji = "\uD83D\uDD25";         // Огонь (альтернатива: \uD83D\uDD25)
+        String internetEmoji = "\uD83C\uDF10";    // Глобус
+        String tsnEmoji = "\uD83C\uDFE2";         // Офисное здание
+
+        StringBuilder formattedResult = new StringBuilder();
+        formattedResult.append(String.format(
+                "Потребление за %s\n\n" +
+                        "%s Вода: %.0f м3 (%.0f → %.0f)*%s р = %s р\n" +
+                        "%s Электричество: %.0f кВт (%.0f → %.0f)*%s р = %s р\n" +
+                        "%s Газ: %.0f м3 (%.0f → %.0f)*%s р = %s р\n",
                 monthYear,
+                waterEmoji,
                 result.waterConsumed(), Double.parseDouble(waterPrevField.getText()), Double.parseDouble(waterCurrentField.getText()),
                 numberFormat.format(82.0), numberFormat.format(result.waterCost()),
+                electricityEmoji,
                 result.electricityConsumed(), Double.parseDouble(electricityPrevField.getText()), Double.parseDouble(electricityCurrentField.getText()),
                 numberFormat.format(4.57), numberFormat.format(result.electricityCost()),
+                gasEmoji,
                 result.gasConsumed(), Double.parseDouble(gasPrevField.getText()), Double.parseDouble(gasCurrentField.getText()),
-                numberFormat.format(7.14), numberFormat.format(result.gasCost()),
-                numberFormat.format(result.totalCost())
-        );
+                numberFormat.format(7.14), numberFormat.format(result.gasCost())
+        ));
 
-        resultArea.setText(formattedResult);
+        // Добавлено: Информация о доп. услугах
+        if (result.hasInternet()) {
+            formattedResult.append(String.format("%s Интернет: %s р\n", internetEmoji, numberFormat.format(700)));
+        }
+        if (result.hasTSN()) {
+            formattedResult.append(String.format("%s ТСН: %s р\n", tsnEmoji, numberFormat.format(1230)));
+        }
+
+        // Добавлено: Итого и Всего к оплате
+        formattedResult.append(String.format(
+                "-------------------------------\n" +
+                        "\uD83D\uDCB0 Итого по счетчикам: %s р\n" +
+                        "\uD83D\uDCB8 Всего к оплате: %s р",
+                numberFormat.format(result.waterCost() + result.electricityCost() + result.gasCost()),
+                numberFormat.format(result.totalCost())
+        ));
+
+        resultArea.setText(formattedResult.toString());
     }
 }

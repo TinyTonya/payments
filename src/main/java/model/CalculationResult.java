@@ -8,6 +8,8 @@ public final class CalculationResult {
     private final double electricityCost;
     private final double gasCost;
     private final double totalCost;
+    private final boolean hasInternet; // Добавлено
+    private final boolean hasTSN;
 
     public CalculationResult(
             double waterConsumed,
@@ -16,7 +18,9 @@ public final class CalculationResult {
             double waterCost,
             double electricityCost,
             double gasCost,
-            double totalCost
+            double totalCost,
+            boolean hasInternet, // Добавлено
+            boolean hasTSN
     ) {
         this.waterConsumed = waterConsumed;
         this.electricityConsumed = electricityConsumed;
@@ -25,6 +29,8 @@ public final class CalculationResult {
         this.electricityCost = electricityCost;
         this.gasCost = gasCost;
         this.totalCost = totalCost;
+        this.hasInternet = hasInternet; // Добавлено
+        this.hasTSN = hasTSN;
     }
 
     // Геттеры
@@ -54,5 +60,13 @@ public final class CalculationResult {
 
     public double totalCost() {
         return totalCost;
+    }
+
+    public boolean hasInternet() {
+        return hasInternet;
+    }
+    // Добавлено
+    public boolean hasTSN() {
+        return hasTSN;
     }
 }
