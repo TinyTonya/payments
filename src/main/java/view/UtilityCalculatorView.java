@@ -6,12 +6,14 @@ import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.Map;
 
 import model.CalculationResult;
 import model.UtilityInput;
 import service.UtilityCalculatorService;
 import exception.InvalidInputException;
 import api.MessageSender;
+import util.DataStorage;
 import util.IntegerInputVerifier;
 
 
@@ -26,11 +28,28 @@ public class UtilityCalculatorView {
     private JTextField waterCurrentField;
     private JTextField electricityCurrentField;
     private JTextField gasCurrentField;
+    private JCheckBox internetCheckBox;
+    private JCheckBox tsnCheckBox;
 
     public UtilityCalculatorView(UtilityCalculatorService calculatorService, MessageSender messageSender) {
         this.calculatorService = calculatorService;
         this.messageSender = messageSender;
         initializeUI();
+        loadPrevMonthData();
+    }
+
+    private void loadPrevMonthData() {
+        try {
+            Map<String, Double> prevData = DataStorage.getPrevMonthInputs();
+            if (!prevData.isEmpty()) {
+                waterPrevField.setText(String.valueOf(prevData.getOrDefault("water", 0.0).intValue()));
+                electricityPrevField.setText(String.valueOf(prevData.getOrDefault("electricity", 0.0).intValue()));
+                gasPrevField.setText(String.valueOf(prevData.getOrDefault("gas", 0.0).intValue()));
+            }
+        } catch (Exception e) {
+            System.err.println("Ошибка загрузки данных: " + e.getMessage());
+            // Поля останутся пустыми
+        }
     }
 
     private void initializeUI() {
@@ -76,8 +95,7 @@ public class UtilityCalculatorView {
         }
     }
 
-    private JCheckBox internetCheckBox;
-    private JCheckBox tsnCheckBox;
+
 
     private JPanel createInputPanel() {
         JPanel panel = new JPanel(new GridLayout(8, 2, 5, 5));
@@ -128,8 +146,9 @@ public class UtilityCalculatorView {
         try {
             UtilityInput input = readInputFields();
             CalculationResult result = calculatorService.calculate(input);
+            DataStorage.saveMonthlyData(input, result); // Сохраняем данные
             displayResult(result);
-        } catch (InvalidInputException | NumberFormatException e) {
+        } catch (Exception e) {
             resultArea.setText("Ошибка: " + e.getMessage());
         }
     }
@@ -161,7 +180,7 @@ public class UtilityCalculatorView {
         // Emoji для услуг
         String waterEmoji = "\uD83D\uDCA7";       // Капля
         String electricityEmoji = "\u26A1";       // Молния
-        String gasEmoji = "\uD83D\uDD25";         // Огонь (альтернатива: \uD83D\uDD25)
+        String gasEmoji = "\uD83D\uDD25";         // Огонь
         String internetEmoji = "\uD83C\uDF10";    // Глобус
         String tsnEmoji = "\uD83C\uDFE2";         // Офисное здание
 
